@@ -1,0 +1,14 @@
+version: '2'
+services:
+  tonic-time:
+    build:
+      context: ../tonic-time/
+      dockerfile: Dockerfile
+    ports:
+      - "4000:4000"
+    volumes:
+      - ../tonic-time:/tonic-time
+      # Don't allow locally installed node_modules
+      # to override the ones installed during
+      # the docker build phase.
+      - /tonic-time/

@@ -26,6 +26,9 @@ cd $SCRIPT_DIR
 sudo docker-compose up --build -d
 
 # Copy nginx configs and restart to ensure new locations are served.
-cp -rf nginx/nginx.conf /etc/nginx/nginx.conf
-cp -rf nginx/sites-available/routes /etc/nginx/sites-available/routes
+sudo rm -rf /etc/nginx/sites-enabled/* /etc/nginx/sites-available/*
+
+sudo cp -rf nginx/nginx.conf /etc/nginx/nginx.conf
+sudo cp -rf nginx/sites /etc/nginx/sites-available/
+sudo ln -sv /etc/nginx/sites-available/sites /etc/nginx/sites-enabled/sites
 sudo service nginx restart

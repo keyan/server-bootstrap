@@ -33,7 +33,7 @@ if [ ! -d ~/route_planner ]; then
 
     # Move frontend files to NGINX expected static file location
     sudo mkdir -p /var/www/html/route_planner
-    rm /var/www/html/route_planner/*
+    sudo rm /var/www/html/route_planner/*
     sudo cp www/* /var/www/html/route_planner
 
     # Install and build
@@ -41,10 +41,30 @@ if [ ! -d ~/route_planner ]; then
     sudo make install
     make build
 
-    # Get map data
-    wget -O seattle.osm "https://overpass-api.de/api/map?bbox=-122.3824,47.5483,-122.2678,47.6469"
-    mv seattle.osm data/
-    perl scripts/osm_stripper.pl data/seattle.osm data/seattle.clean.osm && rm data/seattle.osm
+    read -r -p "Reload network graph? [y/N] " response
+    case "$response" in
+      [yY])
+        # Get map data
+        wget -O seattle.osm "https://overpass-api.de/api/map?bbox=-122.3824,47.5483,-122.2678,47.6469"
+        mv seattle.osm data/
+        perl scripts/osm_stripper.pl data/seattle.osm data/seattle.clean.osm && rm data/seattle.osm
+        ;;
+      *)
+        ;;
+    esac
+
+    read -r -p "Changes to systemd service? [y/N] " response
+    case "$response" in
+      [yY])
+        sudo rm /etc/systemd/system/route_planner.service
+        sudo cp scripts/route_planner.service /etc/systemd/system/route_planner.service
+        sudo systemctl daemon-reload
+        sudo systemctl restart route_planner.service
+        ;;
+      *)
+        ;;
+    esac
+
     popd
 fi
 

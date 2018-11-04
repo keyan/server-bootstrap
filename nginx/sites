@@ -11,7 +11,6 @@ server {
 
     root /var/www/html;
 
-    # Add index.php to the list if you are using PHP
     index index.html index.htm index.nginx-debian.html;
 
     server_name _;
@@ -22,6 +21,7 @@ server {
         try_files $uri $uri/ =404;
     }
 
+    # Serve tonic-time
     location /time {
         proxy_redirect off;
 
@@ -43,6 +43,20 @@ server {
         add_header X-Frame_options "ALLOWALL";
 
         proxy_pass http://127.0.0.1:4000;
+    }
+
+    # Serve route_planner frontend
+    location /route_planner {
+        default_type "text/html";
+
+        alias /static/route_planner.html;
+    }
+
+    # Serve route_planner backend
+    location /route {
+        proxy_redirect off;
+
+        proxy_pass http://127.0.0.1:4001;
     }
 
     # deny access to .htaccess files, if Apache's document root

@@ -49,7 +49,8 @@ server {
     location /route_planner {
         default_type "text/html";
 
-        alias /static/route_planner.html;
+        alias /var/www/html/route_planner;
+        index index.html;
     }
 
     # Serve route_planner backend

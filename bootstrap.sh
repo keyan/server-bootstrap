@@ -4,9 +4,16 @@ set -e
 
 SCRIPT_DIR=$(pwd)
 
-# System packages
-sudo apt-get update
-sudo apt-get install --assume-yes nginx docker docker-compose dnsutils python-minimal python-pip g++ make
+read -r -p "Install system packages? [y/N] " response
+case "$response" in
+  [yY])
+    # System packages
+    sudo apt-get update
+    sudo apt-get install --assume-yes nginx docker docker-compose dnsutils python-minimal python-pip g++ make
+    ;;
+  *)
+    ;;
+esac
 
 # Personal configuration
 cd ~
@@ -24,22 +31,34 @@ fi
 if [ ! -d ~/route_planner ]; then
     git clone https://github.com/keyan/route_planner.git
 
+    # Move frontend files to NGINX expected static file location
+    sudo mkdir -p /var/www/html/route_planner
+    rm /var/www/html/route_planner/*
+    sudo cp www/* /var/www/html/route_planner
+
     # Install and build
     pushd route_planner
-    make install
+    sudo make install
     make build
 
     # Get map data
-    wget https://overpass-api.de/api/map?bbox=-122.4333,47.5077,-122.1667,47.6706
-    mv map data/seattle.osm
-    perl scripts/osm_stripper.pl data/seattle.osm data/seattle.clean.osm
+    wget -O seattle.osm "https://overpass-api.de/api/map?bbox=-122.3824,47.5483,-122.2678,47.6469"
+    mv seattle.osm data/
+    perl scripts/osm_stripper.pl data/seattle.osm data/seattle.clean.osm && rm data/seattle.osm
     popd
 fi
 
 cd $SCRIPT_DIR
 
-# Runs the containers in the background
-sudo docker-compose up --build -d
+read -r -p "Run docker-compose? [y/N] " response
+case "$response" in
+  [yY])
+    # Runs the containers in the background
+    sudo docker-compose up --build -d
+    ;;
+  *)
+    ;;
+esac
 
 # Copy nginx configs and restart to ensure new locations are served.
 sudo rm -rf /etc/nginx/sites-enabled/* /etc/nginx/sites-available/*

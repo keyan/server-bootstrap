@@ -10,6 +10,17 @@ case "$response" in
     # System packages
     sudo apt-get update
     sudo apt-get install --assume-yes nginx docker docker-compose dnsutils python-minimal python-pip g++ make
+
+    # SSL setup
+    # https://certbot.eff.org/lets-encrypt/ubuntubionic-nginx
+    sudo apt-get update
+    sudo apt-get install software-properties-common
+    sudo add-apt-repository universe
+    sudo add-apt-repository ppa:certbot/certbot
+    sudo apt-get update
+    sudo apt-get install certbot python-certbot-nginx
+    # Fetch cert again
+    sudo certbot --nginx certonly
     ;;
   *)
     ;;
